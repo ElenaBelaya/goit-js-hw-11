@@ -4,7 +4,6 @@ import "simplelightbox/dist/simple-lightbox.min.css";
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import NewFetchPictures from "./fetchPictures";
 
-
 const refs = {
     formEl: document.querySelector(`#search-form`),
     inputEl: document.querySelector(`input`),
@@ -19,29 +18,39 @@ refs.formEl.addEventListener(`submit`, onSearch);
 refs.galleryBox.addEventListener(`click`, onViewingStart);
 refs.btnAddMore.addEventListener(`click`, onAddMore);
 
-function onSearch(event) {
+async function onSearch(event) {
 event.preventDefault();
+removeActiveClassOnBtn();
 refs.galleryBox.innerHTML = "";
 newFetchPictures.searchQuery = event.currentTarget.elements.searchQuery.value;
 newFetchPictures.resetPage();
 if(newFetchPictures.searchQuery) {
-newFetchPictures.fetchPictures().then(renderPictures)
-   .catch(error => console.log(error.message));
-   refs.btnAddMore.classList.add(`active`);
-   }  
+  try{
+    const pictures = await newFetchPictures.fetchPictures();
+    renderPictures(pictures);        
+  }
+   catch(error) {
+    console.log(error.message);
+     }       
+   } 
+ };
 
+async function onAddMore() { 
+  try {
+    
+    const pictures = await newFetchPictures.fetchPictures();
+    renderPictures(pictures); 
+          
+  }   
+  catch(error) {
+    console.log(error.message);
+  } 
 };
-
-function onAddMore() {  
-  newFetchPictures.fetchPictures().then(renderPictures)
-  .catch(error => console.log(error.message));
-};
-  
 
 function renderPictures(pictures) {
-console.log(pictures);
-  if(pictures.hits.length === 0) {
-    refs.btnAddMore.classList.remove(`active`);
+
+  if(pictures.hits.length === 0) {    
+    removeActiveClassOnBtn();
     Notify.failure("Sorry, there are no images matching your search query. Please try again.");
   }  else {
     Notify.success(`Hooray! We found totalHits ${pictures.total} images.`);
@@ -64,14 +73,30 @@ console.log(pictures);
  </p>
 </div>
 </a>  
-
 `
 ).join("");
 
 refs.galleryBox.insertAdjacentHTML("beforeend", pictureList);
 
-} 
+if(newFetchPictures.page <= Math.ceil(pictures.total / 40)) {
+  addActiveClassOnBtn();  
+} else {
+  removeActiveClassOnBtn();
+   Notify.failure("We're sorry, but you've reached the end of search results."); 
+}
+
+     } 
   };
+
+  function addActiveClassOnBtn() {
+    refs.btnAddMore.classList.add(`active`);
+  };
+
+  function removeActiveClassOnBtn() {
+    refs.btnAddMore.classList.remove(`active`);
+  };
+
+ 
   
   let gallery = new SimpleLightbox('.gallery a',{captionsData: "alt"}); 
   
@@ -79,7 +104,7 @@ refs.galleryBox.insertAdjacentHTML("beforeend", pictureList);
 function onViewingStart(event) {  
   
   gallery.on('show.simplelightbox'); 
-  //console.log(`hello`); 
+  
   gallery.refresh(); 
 };
 
