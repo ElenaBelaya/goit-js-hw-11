@@ -16,7 +16,7 @@
   img {
     display: block;
     width: 100%;
-    height: 200px;
+    height: 180px;
   }
   
   form {    
@@ -73,7 +73,32 @@
 
   button.load-more.active {
     display: block;
+    
   }
+
+  button.scroll {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    display: none;
+    background-color: #5858FA;
+    border: none;
+    border-radius: 3px;
+    padding: 4px 15px 4px 15px;
+    
+    }
+
+    button.scroll::after {
+      content: "\f078";
+      font-family: FontAwesome;
+      font-size: 26px;
+      color: #ffffff;           
+    }
+
+  button.scroll.active {
+    display: block;
+  }
+
   .gallery {
     display: flex;
     flex-wrap: wrap;
@@ -96,6 +121,7 @@
     display: flex;
     justify-content: space-around;
     padding: 10px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
      
 
   }
@@ -104,7 +130,9 @@
     font-size: 12px;
     display: flex;
     flex-direction: column;    
-    align-items: center;    
+    align-items: center;
+    margin-top: 0px;
+    margin-bottom: 0px;    
     
   }
 

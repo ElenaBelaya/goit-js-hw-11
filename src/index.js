@@ -10,6 +10,7 @@ const refs = {
     btn: document.querySelector(`button[type="submit"]`),
     galleryBox:document.querySelector(`.gallery`),
     btnAddMore: document.querySelector(`button[type="button"]`),
+    btnScroll: document.querySelector(`.scroll`),
 }
 
 const newFetchPictures = new NewFetchPictures();
@@ -17,6 +18,9 @@ const newFetchPictures = new NewFetchPictures();
 refs.formEl.addEventListener(`submit`, onSearch);
 refs.galleryBox.addEventListener(`click`, onViewingStart);
 refs.btnAddMore.addEventListener(`click`, onAddMore);
+refs.btnScroll.addEventListener(`click`, scrollByBtn);
+
+let cardHeight = 0;
 
 async function onSearch(event) {
 event.preventDefault();
@@ -27,7 +31,9 @@ newFetchPictures.resetPage();
 if(newFetchPictures.searchQuery) {
   try{
     const pictures = await newFetchPictures.fetchPictures();
-    renderPictures(pictures);        
+    renderPictures(pictures); 
+   
+    //scrollByBtn();
   }
    catch(error) {
     console.log(error.message);
@@ -36,11 +42,11 @@ if(newFetchPictures.searchQuery) {
  };
 
 async function onAddMore() { 
-  try {
-    
+  try {   
     const pictures = await newFetchPictures.fetchPictures();
     renderPictures(pictures); 
-          
+    //scrollByBtn();
+    
   }   
   catch(error) {
     console.log(error.message);
@@ -57,7 +63,7 @@ function renderPictures(pictures) {
     const pictureList = pictures.hits.map((picture) => 
      `     
     <a class="photo-card" href="${picture.largeImageURL}">
-    <img src=${picture.webformatURL}" alt="${picture.tags}" title="${picture.tags}" loading="lazy" />      
+    <img src=${picture.webformatURL}" alt="${picture.tags}" loading="lazy" />      
 <div class="info">
  <p class="info-item">
    <b>Likes</b>${picture.likes}
@@ -84,29 +90,37 @@ if(newFetchPictures.page <= Math.ceil(pictures.total / 40)) {
   removeActiveClassOnBtn();
    Notify.failure("We're sorry, but you've reached the end of search results."); 
 }
-
      } 
   };
 
   function addActiveClassOnBtn() {
     refs.btnAddMore.classList.add(`active`);
+    refs.btnScroll.classList.add(`active`);
+    gallery.refresh(); 
   };
 
   function removeActiveClassOnBtn() {
     refs.btnAddMore.classList.remove(`active`);
-  };
+  }; 
+  
+  let gallery = new SimpleLightbox('.gallery a');
 
- 
-  
-  let gallery = new SimpleLightbox('.gallery a',{captionsData: "alt"}); 
-  
-
-function onViewingStart(event) {  
-  
-  gallery.on('show.simplelightbox'); 
-  
-  gallery.refresh(); 
+  function onViewingStart(event) {    
+    gallery.on('show.simplelightbox')  
 };
+
+
+function scrollByBtn() { 
+  const { height: cardHeight } = refs.galleryBox.firstElementChild
+  .getBoundingClientRect();
+
+    window.scrollBy({
+    top: cardHeight * 3,
+    left: 0,
+    behavior: "smooth",
+  })
+  };
+  
 
 
 
